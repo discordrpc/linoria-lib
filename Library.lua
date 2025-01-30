@@ -1583,8 +1583,6 @@ do
     end
 
     function Funcs:AddInput(Idx, Info)
-        assert(Info.Text, 'AddInput: Missing `Text` string.')
-
         local Textbox = {
             Value = Info.Default or '';
             Numeric = Info.Numeric or false;
@@ -1596,16 +1594,18 @@ do
         local Groupbox = self;
         local Container = Groupbox.Container;
 
-        local InputLabel = Library:CreateLabel({
-            Size = UDim2.new(1, 0, 0, 15);
-            TextSize = 14;
-            Text = Info.Text;
-            TextXAlignment = Enum.TextXAlignment.Left;
-            ZIndex = 5;
-            Parent = Container;
-        });
+        if typeof(Info.Text) == 'string' then
+          local InputLabel = Library:CreateLabel({
+              Size = UDim2.new(1, 0, 0, 15);
+              TextSize = 14;
+              Text = Info.Text;
+              TextXAlignment = Enum.TextXAlignment.Left;
+              ZIndex = 5;
+              Parent = Container;
+          });
 
-        Groupbox:AddBlank(1);
+          Groupbox:AddBlank(1);
+        end
 
         local TextBoxOuter = Library:Create('Frame', {
             BackgroundColor3 = Color3.new(0, 0, 0);
