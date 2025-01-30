@@ -2083,8 +2083,10 @@ do
             Values = Info.Values;
             Value = Info.Multi and {};
             Multi = Info.Multi;
+            AutoClose = Info.AutoClose or (Info.Multi and false or true),
+            DisplayText = Info.DisplayText,
             Type = 'Dropdown';
-            SpecialType = Info.SpecialType; 
+            SpecialType = Info.SpecialType;
             Callback = Info.Callback or function() end;
         };
 
@@ -2244,16 +2246,22 @@ do
         });
 
         function Dropdown:Display()
-            local Str = ''
+            local Values = {}
             if Info.Multi then
                 for _, Value in next, Dropdown.Values do
                     if Dropdown.Value[Value] then
-                        Str = Str .. Value .. ', '
+                        table.insert(Values, Value)
                     end
                 end
-                Str = Str:sub(1, #Str - 2);
             else
-                Str = Dropdown.Value or '';
+                Values = { Dropdown.Value or 'Unknown Value' };
+            end
+
+            local Str
+            if Info.DisplayText then
+              Str = string.gsub(Info.DisplayText, '%{num%}', #Values)
+            else
+              Str = table.concat(Values, ', ')
             end
             ItemList.Text = (Str == '' and '--' or Str);
         end;
@@ -2359,6 +2367,11 @@ do
                                 OtherButton:UpdateButton()
                             end
                         end
+
+                        if Dropdown.AutoClose then
+                            Dropdown:CloseDropdown()
+                        end
+
                         Table:UpdateButton()
                         Dropdown:Display()
                         Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
