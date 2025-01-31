@@ -3497,6 +3497,18 @@ function Library:CreateWindow(...)
         Fading = false
     end
 
+    function Library:Hide()
+        if Toggled then
+            self:Toggle()
+        end
+    end
+  
+    function Library:Show()
+        if not Toggled then
+            self:Toggle()
+        end
+    end
+
     Library:GiveSignal(InputService.InputBegan:Connect(function(Input, Processed)
         -- If there's a dedicated ToggleKeybind in the library, respect that first:
         if type(Library.ToggleKeybind) == 'table' and Library.ToggleKeybind.Type == 'KeyPicker' then
@@ -3530,14 +3542,6 @@ local function OnPlayerChange()
 end
 Players.PlayerAdded:Connect(OnPlayerChange)
 Players.PlayerRemoving:Connect(OnPlayerChange)
-
-function Library:Hide()
-    self.ScreenGui.Enabled = false
-end
-
-function Library:Show()
-    self.ScreenGui.Enabled = true
-end
 
 getgenv().Library = Library
 return Library
