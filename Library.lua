@@ -1695,6 +1695,11 @@ do
             Library:SafeCallback(Textbox.Changed, Textbox.Value);
         end;
 
+        function Textbox:ClearValue()
+            Textbox.Value = '';
+            Box.Text = '';
+        end;
+
         if Textbox.Finished then
             Box.FocusLost:Connect(function(enter)
                 if not enter then return end
