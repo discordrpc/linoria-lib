@@ -2252,27 +2252,27 @@ do
 
         function Dropdown:Display()
             local Values = {}
-            if Info.Multi then
+            if Dropdown.Multi then
                 for _, Value in next, Dropdown.Values do
                     if Dropdown.Value[Value] then
                         table.insert(Values, Value)
                     end
                 end
             else
-                Values = { Dropdown.Value or 'Unknown Value' };
+                Values = { Dropdown.Value or (Info.AllowNull and '--') or 'Unknown Value' };
             end
 
             local Str
-            if Info.DisplayText then
-              Str = string.gsub(Info.DisplayText, '%{num%}', #Values)
+            if Dropdown.DisplayText then
+              Str = string.gsub(Dropdown.DisplayText, '%{num%}', #Values)
             else
               Str = table.concat(Values, ', ')
             end
-            ItemList.Text = (Str == '' and '--' or Str);
+            ItemList.Text = Str;
         end;
 
         function Dropdown:GetActiveValues()
-            if Info.Multi then
+            if Dropdown.Multi then
                 local t = {}
                 for Value, Bool in next, Dropdown.Value do
                     table.insert(t, Value)
@@ -2347,6 +2347,19 @@ do
                     ButtonLabel.TextColor3 = Selected and Library.AccentColor or Library.FontColor
                     Library.RegistryMap[ButtonLabel].Properties.TextColor3 = Selected and 'AccentColor' or 'FontColor'
                 end;
+
+                ButtonLabel.MouseEnter:Connect(function()
+                    local DarkenedColor = Color3.new(
+                        math.clamp(Library.MainColor.R * 0.8, 0, 1),
+                        math.clamp(Library.MainColor.G * 0.8, 0, 1),
+                        math.clamp(Library.MainColor.B * 0.8, 0, 1)
+                    )
+                    Button.BackgroundColor3 = DarkenedColor
+                end)
+
+                ButtonLabel.MouseLeave:Connect(function()
+                    Button.BackgroundColor3 = Library.MainColor
+                end)
 
                 ButtonLabel.InputBegan:Connect(function(Input)
                     if Input.UserInputType == Enum.UserInputType.MouseButton1 then
