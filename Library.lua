@@ -2389,15 +2389,17 @@ do
                             end
                         end
 
-                        if Dropdown.AutoClose then
-                            Dropdown:CloseDropdown()
-                        end
-
                         Table:UpdateButton()
                         Dropdown:Display()
                         Library:SafeCallback(Dropdown.Callback, Dropdown.Value)
                         Library:SafeCallback(Dropdown.Changed, Dropdown.Value)
                         Library:AttemptSave()
+                    end
+                end)
+
+                ButtonLabel.InputEnded:Connect(function(Input)
+                    if Input.UserInputType == Enum.UserInputType.MouseButton1 and Dropdown.AutoClose then
+                        Dropdown:CloseDropdown()
                     end
                 end)
 
