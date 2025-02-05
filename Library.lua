@@ -1,3 +1,6 @@
+--!nocheck
+--!nolint
+
 local InputService = game:GetService('UserInputService');
 local TextService = game:GetService('TextService');
 local CoreGui = game:GetService('CoreGui');
@@ -3092,84 +3095,139 @@ function Library:CreateWindow(...)
         end
 
         function Tab:AddGroupbox(Info)
-            local Groupbox = {};
-
-            local BoxOuter = Library:Create('Frame', {
-                BackgroundColor3 = Library.BackgroundColor;
-                BorderColor3 = Library.OutlineColor;
-                BorderMode = Enum.BorderMode.Inset;
-                Size = UDim2.new(1, 0, 0, 507 + 2);
-                ZIndex = 2;
-                Parent = (Info.Side == 1 and LeftSide or RightSide);
-            });
-
-            Library:AddToRegistry(BoxOuter, {
-                BackgroundColor3 = 'BackgroundColor';
-                BorderColor3 = 'OutlineColor';
-            });
-
-            local BoxInner = Library:Create('Frame', {
-                BackgroundColor3 = Library.BackgroundColor;
-                BorderColor3 = Color3.new(0, 0, 0);
-                Size = UDim2.new(1, -2, 1, -2);
-                Position = UDim2.new(0, 1, 0, 1);
-                ZIndex = 4;
-                Parent = BoxOuter;
-            });
-
-            Library:AddToRegistry(BoxInner, { BackgroundColor3 = 'BackgroundColor' });
-
-            local Highlight = Library:Create('Frame', {
-                BackgroundColor3 = Library.AccentColor;
-                BorderSizePixel = 0;
-                Size = UDim2.new(1, 0, 0, 2);
-                ZIndex = 5;
-                Parent = BoxInner;
-            });
-
-            Library:AddToRegistry(Highlight, { BackgroundColor3 = 'AccentColor' });
-
-            local GroupboxLabel = Library:CreateLabel({
-                Size = UDim2.new(1, 0, 0, 18);
-                Position = UDim2.new(0, 4, 0, 2);
-                TextSize = 14;
-                Text = Info.Name;
-                TextXAlignment = Enum.TextXAlignment.Left;
-                ZIndex = 5;
-                Parent = BoxInner;
-            });
-
-            local Container = Library:Create('Frame', {
-                BackgroundTransparency = 1;
-                Position = UDim2.new(0, 4, 0, 20);
-                Size = UDim2.new(1, -4, 1, -20);
-                ZIndex = 1;
-                Parent = BoxInner;
-            });
-
-            Library:Create('UIListLayout', {
-                FillDirection = Enum.FillDirection.Vertical;
-                SortOrder = Enum.SortOrder.LayoutOrder;
-                Parent = Container;
-            });
-
-            function Groupbox:Resize()
-                local Size = 0
-                for _, Element in next, Groupbox.Container:GetChildren() do
-                    if not Element:IsA('UIListLayout') and Element.Visible then
-                        Size = Size + Element.Size.Y.Offset
-                    end
-                end
-                BoxOuter.Size = UDim2.new(1, 0, 0, 20 + Size + 2 + 2)
-            end
-
-            Groupbox.Container = Container;
-            setmetatable(Groupbox, BaseGroupbox);
-            Groupbox:AddBlank(3);
-            Groupbox:Resize();
-            Tab.Groupboxes[Info.Name] = Groupbox;
-            return Groupbox
+          local Groupbox = {}
+      
+          local BoxOuter = Library:Create('Frame', {
+              BackgroundColor3 = Library.BackgroundColor;
+              BorderColor3 = Library.OutlineColor;
+              BorderMode = Enum.BorderMode.Inset;
+              Size = UDim2.new(1, 0, 0, 507 + 2);
+              ZIndex = 2;
+              Parent = (Info.Side == 1 and LeftSide or RightSide);
+          })
+      
+          Library:AddToRegistry(BoxOuter, {
+              BackgroundColor3 = 'BackgroundColor';
+              BorderColor3 = 'OutlineColor';
+          })
+      
+          local BoxInner = Library:Create('Frame', {
+              BackgroundColor3 = Library.BackgroundColor;
+              BorderColor3 = Color3.new(0, 0, 0);
+              Size = UDim2.new(1, -2, 1, -2);
+              Position = UDim2.new(0, 1, 0, 1);
+              ZIndex = 4;
+              Parent = BoxOuter;
+          })
+      
+          Library:AddToRegistry(BoxInner, { BackgroundColor3 = 'BackgroundColor' })
+      
+          local Highlight = Library:Create('Frame', {
+              BackgroundColor3 = Library.AccentColor;
+              BorderSizePixel = 0;
+              Size = UDim2.new(1, 0, 0, 2);
+              ZIndex = 5;
+              Parent = BoxInner;
+          })
+      
+          Library:AddToRegistry(Highlight, { BackgroundColor3 = 'AccentColor' })
+      
+          local GroupboxLabel = Library:CreateLabel({
+              Size = UDim2.new(1, 0, 0, 18);
+              Position = UDim2.new(0, 4, 0, 2);
+              TextSize = 14;
+              Text = Info.Name;
+              TextXAlignment = Enum.TextXAlignment.Left;
+              ZIndex = 5;
+              Parent = BoxInner;
+          })
+      
+          -- If the groupbox should be collapsible…
+          if Info.Collapsible then
+              Groupbox.Collapsed = false
+              local headerHeight = 24  -- (20 + 2 + 2: header plus margins)
+              -- Create an arrow indicator on the right side of the header.
+              local Arrow = Library:Create('ImageLabel', {
+                  Size = UDim2.new(0, 16, 0, 16),
+                  Position = UDim2.new(1, -20, 0, 4),  -- adjust as needed
+                  BackgroundTransparency = 1,
+                  Image = "rbxassetid://6034818372",  -- example asset ID for an arrow icon
+                  ImageColor3 = Library.FontColor,
+                  ZIndex = 6,
+                  Parent = BoxInner,
+              })
+              -- When expanded, let the arrow point down (rotation 90); when collapsed, point right (rotation 0)
+              Arrow.Rotation = 0
+              Groupbox.Arrow = Arrow
+      
+              -- Make the header clickable
+              GroupboxLabel.Active = true
+              GroupboxLabel.InputBegan:Connect(function(Input)
+                print('Collaping')
+                  if Input.UserInputType == Enum.UserInputType.MouseButton1 then
+                      Groupbox.Collapsed = not Groupbox.Collapsed
+                      local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+                      if Groupbox.Collapsed then
+                          -- Collapse: animate container height to 0 and outer height to headerHeight
+                          local tween1 = TweenService:Create(Groupbox.Container, tweenInfo, {Size = UDim2.new(1, -4, 0, 0)})
+                          local tween2 = TweenService:Create(BoxOuter, tweenInfo, {Size = UDim2.new(1, 0, 0, headerHeight)})
+                          local tweenArrow = TweenService:Create(Arrow, tweenInfo, {Rotation = 90})
+                          tween1:Play() tween2:Play() tweenArrow:Play()
+                      else
+                          -- Expand: first, compute the content height
+                          local contentHeight = 0
+                          for _, child in ipairs(Groupbox.Container:GetChildren()) do
+                              if not child:IsA("UIListLayout") and child.Visible then
+                                  contentHeight = contentHeight + child.Size.Y.Offset
+                              end
+                          end
+                          local expandedHeight = headerHeight + contentHeight
+                          local tween1 = TweenService:Create(Groupbox.Container, tweenInfo, {Size = UDim2.new(1, -4, 0, contentHeight)})
+                          local tween2 = TweenService:Create(BoxOuter, tweenInfo, {Size = UDim2.new(1, 0, 0, expandedHeight)})
+                          local tweenArrow = TweenService:Create(Arrow, tweenInfo, {Rotation = 0})
+                          tween1:Play() tween2:Play() tweenArrow:Play()
+                      end
+                  end
+              end)
+          end
+      
+          local Container = Library:Create('Frame', {
+              BackgroundTransparency = 1;
+              Position = UDim2.new(0, 4, 0, 20);
+              Size = UDim2.new(1, -4, 1, -20);
+              ClipsDescendants = true;
+              ZIndex = 1;
+              Parent = BoxInner;
+          })
+      
+          Library:Create('UIListLayout', {
+              FillDirection = Enum.FillDirection.Vertical;
+              SortOrder = Enum.SortOrder.LayoutOrder;
+              Parent = Container;
+          })
+      
+          function Groupbox:Resize()
+              if Groupbox.Collapsed then
+                  BoxOuter.Size = UDim2.new(1, 0, 0, 24)
+              else
+                  local contentHeight = 0
+                  for _, Element in ipairs(Groupbox.Container:GetChildren()) do
+                      if not Element:IsA('UIListLayout') and Element.Visible then
+                          contentHeight = contentHeight + Element.Size.Y.Offset
+                      end
+                  end
+                  BoxOuter.Size = UDim2.new(1, 0, 0, 24 + contentHeight)
+              end
+          end
+      
+          Groupbox.Container = Container
+          setmetatable(Groupbox, BaseGroupbox)
+          Groupbox:AddBlank(3)
+          Groupbox:Resize()
+          Tab.Groupboxes[Info.Name] = Groupbox
+          return Groupbox
         end
+      
 
         function Tab:AddLeftGroupbox(Name)
             return Tab:AddGroupbox({ Side = 1; Name = Name; });
