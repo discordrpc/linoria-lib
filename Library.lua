@@ -3094,7 +3094,7 @@ function Library:CreateWindow(...)
             TabListLayout:ApplyLayout();
         end
 
-        function Tab:AddGroupbox(Info)
+        function Tab:AddGroupbox(Options)
           local Groupbox = {}
       
           local BoxOuter = Library:Create('Frame', {
@@ -3103,7 +3103,7 @@ function Library:CreateWindow(...)
               BorderMode = Enum.BorderMode.Inset;
               Size = UDim2.new(1, 0, 0, 507 + 2);
               ZIndex = 2;
-              Parent = (Info.Side == 1 and LeftSide or RightSide);
+              Parent = (Options.Side == 1 and LeftSide or RightSide);
           })
       
           Library:AddToRegistry(BoxOuter, {
@@ -3136,45 +3136,38 @@ function Library:CreateWindow(...)
               Size = UDim2.new(1, 0, 0, 18);
               Position = UDim2.new(0, 4, 0, 2);
               TextSize = 14;
-              Text = Info.Name;
+              Text = Options.Name;
               TextXAlignment = Enum.TextXAlignment.Left;
               ZIndex = 5;
               Parent = BoxInner;
           })
-      
-          -- If the groupbox should be collapsible…
-          if Info.Collapsible then
-              Groupbox.Collapsed = false
-              local headerHeight = 24  -- (20 + 2 + 2: header plus margins)
-              -- Create an arrow indicator on the right side of the header.
+
+          if Options.Collapsible then
+              Groupbox.Collapsed = Options.Collapsed or false
+              local headerHeight = 24
               local Arrow = Library:Create('ImageLabel', {
                   Size = UDim2.new(0, 16, 0, 16),
-                  Position = UDim2.new(1, -20, 0, 4),  -- adjust as needed
+                  Position = UDim2.new(1, -20, 0, 4),
                   BackgroundTransparency = 1,
-                  Image = "rbxassetid://6034818372",  -- example asset ID for an arrow icon
+                  Image = "rbxassetid://6034818372",
                   ImageColor3 = Library.FontColor,
                   ZIndex = 6,
                   Parent = BoxInner,
               })
-              -- When expanded, let the arrow point down (rotation 90); when collapsed, point right (rotation 0)
               Arrow.Rotation = 0
               Groupbox.Arrow = Arrow
-      
-              -- Make the header clickable
+
               GroupboxLabel.Active = true
               GroupboxLabel.InputBegan:Connect(function(Input)
-                print('Collaping')
                   if Input.UserInputType == Enum.UserInputType.MouseButton1 then
                       Groupbox.Collapsed = not Groupbox.Collapsed
                       local tweenInfo = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
                       if Groupbox.Collapsed then
-                          -- Collapse: animate container height to 0 and outer height to headerHeight
                           local tween1 = TweenService:Create(Groupbox.Container, tweenInfo, {Size = UDim2.new(1, -4, 0, 0)})
                           local tween2 = TweenService:Create(BoxOuter, tweenInfo, {Size = UDim2.new(1, 0, 0, headerHeight)})
                           local tweenArrow = TweenService:Create(Arrow, tweenInfo, {Rotation = 90})
                           tween1:Play() tween2:Play() tweenArrow:Play()
                       else
-                          -- Expand: first, compute the content height
                           local contentHeight = 0
                           for _, child in ipairs(Groupbox.Container:GetChildren()) do
                               if not child:IsA("UIListLayout") and child.Visible then
@@ -3224,17 +3217,19 @@ function Library:CreateWindow(...)
           setmetatable(Groupbox, BaseGroupbox)
           Groupbox:AddBlank(3)
           Groupbox:Resize()
-          Tab.Groupboxes[Info.Name] = Groupbox
+          Tab.Groupboxes[Options.Name] = Groupbox
           return Groupbox
         end
       
 
-        function Tab:AddLeftGroupbox(Name)
-            return Tab:AddGroupbox({ Side = 1; Name = Name; });
+        function Tab:AddLeftGroupbox(Options)
+            Options.Side = 1
+            return Tab:AddGroupbox(Options);
         end
 
-        function Tab:AddRightGroupbox(Name)
-            return Tab:AddGroupbox({ Side = 2; Name = Name; });
+        function Tab:AddRightGroupbox(Options)
+            Options.Side = 2
+            return Tab:AddGroupbox(Options);
         end
 
         function Tab:AddTabbox(Info)
