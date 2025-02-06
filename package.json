@@ -1,0 +1,19 @@
+{
+  "name": "linoria-lib",
+  "version": "1.0.0",
+  "description": "A Roblox UI library inspired by Splix, BBot and many others.",
+  "homepage": "https://github.com/discordrpc/linoria-lib#readme",
+  "bugs": {
+    "url": "https://github.com/discordrpc/linoria-lib/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/discordrpc/linoria-lib.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "build": "node ./scripts/bundle.js ./src Library.luau ./build/Library.luau",
+    "test": "node ./scripts/bundle.js ./build test.luau ./build/test-bundle.luau"
+  }
+}

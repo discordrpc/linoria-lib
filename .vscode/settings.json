@@ -1,0 +1,7 @@
+{
+  "luau-lsp.types.definitionFiles": [
+    "types/main.d.luau",
+    "types/library.d.luau"
+  ],
+  "luau-lsp.sourcemap.enabled": false
+}
